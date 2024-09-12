@@ -19,11 +19,12 @@ public class OpenAiLangChain4jTest {
                 .modelName(OpenAiChatModelName.GPT_4_O_MINI)
                 .build();
         ChatResponse response = chatModel.chat(ChatRequest.builder()
-                .messages(List.of(new UserMessage("What was the score of the last Super Bowl?")))
+                .messages(List.of(
+                        new UserMessage("""
+                    What was the score of the last Super Bowl?""")))
                 .build());
         System.out.println(response.aiMessage().text());
-        System.out.println("Input tokens: " + response.tokenUsage().inputTokenCount());
-        System.out.println("Output tokens: " + response.tokenUsage().outputTokenCount());
+        System.out.println(response.tokenUsage());
     }
 
 }

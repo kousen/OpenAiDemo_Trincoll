@@ -2,6 +2,8 @@ package edu.trincoll;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Comparator;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class HelloGPTTest {
@@ -12,7 +14,9 @@ class HelloGPTTest {
         var models = helloGPT.getModels();
         assertNotNull(models);
         assertFalse(models.data().isEmpty());
-        models.data().forEach(System.out::println);
+        models.data().stream()
+                .sorted(Comparator.comparing(HelloGPT.Model::id))
+                .forEach(System.out::println);
     }
 
 }
