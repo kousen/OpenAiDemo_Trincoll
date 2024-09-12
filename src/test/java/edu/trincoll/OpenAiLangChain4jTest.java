@@ -17,11 +17,14 @@ public class OpenAiLangChain4jTest {
         OpenAiChatModel chatModel = OpenAiChatModel.builder()
                 .apiKey(apiKey)
                 .modelName(OpenAiChatModelName.GPT_4_O_MINI)
+                //.modelName("o1-preview")
                 .build();
         ChatResponse response = chatModel.chat(ChatRequest.builder()
                 .messages(List.of(
                         new UserMessage("""
-                    What was the score of the last Super Bowl?""")))
+                    What is the Ultimate Answer to
+                    the Ultimate Question of
+                    Life, the Universe, and Everything?""")))
                 .build());
         System.out.println(response.aiMessage().text());
         System.out.println(response.tokenUsage());

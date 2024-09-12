@@ -15,6 +15,10 @@ public class HelloGPT {
     private final static String APIKEY = System.getenv("OPENAI_API_KEY");
 
     // Records to map to the JSON structure
+    // Records were added to Java 16
+    // - autogenerate toString, equals, and hashCode
+    // - immutable
+    // - final and extend java.lang.Record
     public record Model(String id, Long created) {
     }
 
