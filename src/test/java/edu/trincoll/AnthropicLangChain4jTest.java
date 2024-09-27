@@ -12,9 +12,8 @@ import dev.langchain4j.model.anthropic.AnthropicChatModelName;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.response.ChatResponse;
-import dev.langchain4j.model.openai.OpenAiChatModel;
-import dev.langchain4j.model.openai.OpenAiChatModelName;
 import dev.langchain4j.model.output.Response;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -50,11 +49,10 @@ public class AnthropicLangChain4jTest {
         }
     }
 
-    @Test
+    @Test @Disabled("Doesn't work for Claude models")
     void chatWithMessages() {
         ChatResponse response = chatModel.chat(ChatRequest.builder()
-                .messages(List.of(
-                        new UserMessage("""
+                .messages(List.of(new UserMessage("""
                     What is the Ultimate Answer to
                     the Ultimate Question of
                     Life, the Universe, and Everything?""")))
@@ -66,8 +64,7 @@ public class AnthropicLangChain4jTest {
     @Test
     void chatWithString() {
         String answer = chatModel.generate("""
-                Who is the best musician of the
-                2010s?
+                Who is the best musician of the 2010s?
                 """);
         System.out.println(answer);
     }

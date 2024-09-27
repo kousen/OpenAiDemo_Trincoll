@@ -29,8 +29,7 @@ public class OpenAiLangChain4jTest {
     @Test
     void chatWithMessages() {
         ChatResponse response = chatModel.chat(ChatRequest.builder()
-                .messages(List.of(
-                        new UserMessage("""
+                .messages(List.of(new UserMessage("""
                     What is the Ultimate Answer to
                     the Ultimate Question of
                     Life, the Universe, and Everything?""")))
