@@ -7,6 +7,8 @@ import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ImageContent;
 import dev.langchain4j.data.message.TextContent;
 import dev.langchain4j.data.message.UserMessage;
+import dev.langchain4j.model.anthropic.AnthropicChatModel;
+import dev.langchain4j.model.anthropic.AnthropicChatModelName;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.response.ChatResponse;
@@ -15,16 +17,38 @@ import dev.langchain4j.model.openai.OpenAiChatModelName;
 import dev.langchain4j.model.output.Response;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.Base64;
 import java.util.List;
 
-public class OpenAiLangChain4jTest {
-    private final String apiKey = System.getenv("OPENAI_API_KEY");
-
-    private final ChatLanguageModel chatModel = OpenAiChatModel.builder()
-                .apiKey(apiKey)
-                .modelName(OpenAiChatModelName.GPT_4_O_MINI)
+public class AnthropicLangChain4jTest {
+    private final ChatLanguageModel chatModel = AnthropicChatModel.builder()
+                .apiKey(System.getenv("ANTHROPIC_API_KEY"))
+                .modelName(AnthropicChatModelName.CLAUDE_3_HAIKU_20240307)
                 //.modelName("o1-preview")
                 .build();
+
+    public String downloadImageAndConvertToBase64(String imageUrl) throws IOException, InterruptedException {
+        try (var client = HttpClient.newHttpClient()) {
+            var request = HttpRequest.newBuilder()
+                    .uri(URI.create(imageUrl))
+                    .GET()
+                    .build();
+
+            var response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
+
+            return switch (response.statusCode()) {
+                case 200 -> Base64.getEncoder().encodeToString(response.body());
+                case 404 -> throw new IOException("Image not found (404)");
+                case 403 -> throw new IOException("Access forbidden (403)");
+                default -> throw new IOException("Failed to download image. HTTP status code: " + response.statusCode());
+            };
+        }
+    }
 
     @Test
     void chatWithMessages() {
@@ -49,11 +73,12 @@ public class OpenAiLangChain4jTest {
     }
 
     @Test
-    void visionChat() {
+    void visionChat() throws Exception {
         String imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg";
+        String encodedImage = downloadImageAndConvertToBase64(imageUrl);
         Response<AiMessage> response = chatModel.generate(
                 UserMessage.from(
-                        ImageContent.from(imageUrl),
+                        ImageContent.from(encodedImage, "image/jpeg"),
                         TextContent.from("What do you see?")
                 )
         );

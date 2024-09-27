@@ -15,6 +15,7 @@ dependencies {
 
     // Langchain4j
     implementation("dev.langchain4j:langchain4j-open-ai:0.34.0")
+    implementation("dev.langchain4j:langchain4j-anthropic:0.34.0")
     implementation("dev.langchain4j:langchain4j:0.34.0")
 
     // Logging
