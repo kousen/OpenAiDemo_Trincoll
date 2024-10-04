@@ -13,10 +13,7 @@ class BFLImageGenerationServiceTest {
         ImageRequest imageRequest = new ImageRequest(
                 "a warrior cat rides a dragon into battle",
                 1024,
-                768,
-                false,
-                null,
-                null
+                768
         );
 
         // Send the request and retrieve the request ID
