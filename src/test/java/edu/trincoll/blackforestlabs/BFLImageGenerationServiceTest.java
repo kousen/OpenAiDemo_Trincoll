@@ -20,8 +20,5 @@ class BFLImageGenerationServiceTest {
         String resultSample = service.pollForResult(requestId);
         assertNotNull(resultSample, "The result sample should not be null");
         System.out.println("Generated image: " + resultSample);
-
-        // Download and save the image to src/main/resources
-        service.downloadAndSaveImage(resultSample);
     }
 }

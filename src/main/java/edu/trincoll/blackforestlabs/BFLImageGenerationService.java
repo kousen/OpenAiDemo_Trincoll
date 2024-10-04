@@ -4,16 +4,11 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.concurrent.TimeUnit;
 
 public class BFLImageGenerationService {
@@ -85,34 +80,6 @@ public class BFLImageGenerationService {
                     case Failed -> throw new IllegalStateException("Error: Task failed");
                     case Unknown, Pending, InProgress -> System.out.println("Status: " + status);  // Handle statuses that require waiting or unknown handling
                 }
-            }
-        }
-    }
-
-    // Method to download and save the image to src/main/resources
-    public void downloadAndSaveImage(String imageUrl) throws IOException, InterruptedException {
-        // Generate the timestamp-based filename
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-        String fileName = "generated_image_" + timestamp + ".jpg";
-
-        // Path to save the file (src/main/resources)
-        Path outputPath = Paths.get("src/main/resources", fileName);
-
-        // Using try-with-resources for AutoCloseable HttpClient
-        try (HttpClient client = HttpClient.newBuilder().build()) {
-            // Send GET request to download and directly save the image to file
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(imageUrl))
-                    .build();
-
-            // Using ofFile to directly save the response body into the file
-            HttpResponse<Path> response = client.send(request, HttpResponse.BodyHandlers.ofFile(outputPath));
-
-            // Check if the response is successful (HTTP status 200)
-            if (response.statusCode() == 200) {
-                System.out.println("Image saved successfully to: " + response.body().toAbsolutePath());
-            } else {
-                throw new IOException("Failed to download the image. HTTP Status Code: " + response.statusCode());
             }
         }
     }
