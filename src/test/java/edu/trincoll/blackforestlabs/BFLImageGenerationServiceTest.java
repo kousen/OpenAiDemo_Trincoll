@@ -15,8 +15,8 @@ class BFLImageGenerationServiceTest {
                 1024,
                 768,
                 false,
-                42,
-                2
+                null,
+                null
         );
 
         // Send the request and retrieve the request ID

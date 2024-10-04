@@ -27,6 +27,16 @@ public class OpenAiLangChain4jTest {
                 .build();
 
     @Test
+    void o1mini() {
+        ChatLanguageModel o1mini = OpenAiChatModel.builder()
+                .apiKey(apiKey)
+                .modelName("o1-mini")
+                .build();
+        System.out.println(
+                o1mini.generate("What is the meaning of life?"));
+    }
+
+    @Test
     void chatWithMessages() {
         ChatResponse response = chatModel.chat(ChatRequest.builder()
                 .messages(List.of(new UserMessage("""
