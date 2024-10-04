@@ -33,12 +33,11 @@ public class BFLImageGenerationService {
     public String requestImageGeneration(ImageRequest imageRequest) throws Exception {
         String requestBody = gson.toJson(imageRequest);
 
-        // Using try-with-resources for AutoCloseable HttpClient
-        try (HttpClient client = HttpClient.newBuilder()
+        try (var client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
                 .build()) {
 
-            HttpRequest request = HttpRequest.newBuilder()
+            var request = HttpRequest.newBuilder()
                     .uri(URI.create(API_URL))
                     .header("accept", "application/json")
                     .header("x-key", API_KEY)
@@ -55,14 +54,14 @@ public class BFLImageGenerationService {
 
     // Method to poll for the result
     public String pollForResult(String requestId) throws Exception {
-        try (HttpClient client = HttpClient.newBuilder()
+        try (var client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
                 .build()) {
 
             while (true) {
                 TimeUnit.MILLISECONDS.sleep(500);
 
-                HttpRequest getResultRequest = HttpRequest.newBuilder()
+                var getResultRequest = HttpRequest.newBuilder()
                         .uri(URI.create(RESULT_URL + "?id=" + requestId))
                         .header("accept", "application/json")
                         .header("x-key", API_KEY)
@@ -70,7 +69,7 @@ public class BFLImageGenerationService {
 
                 HttpResponse<String> resultResponse =
                         client.send(getResultRequest, HttpResponse.BodyHandlers.ofString());
-                System.out.println("Raw response: " + resultResponse.body());
+                //System.out.println("Raw response: " + resultResponse.body());
                 ApiResponse resultApiResponse = gson.fromJson(resultResponse.body(), ApiResponse.class);
 
                 Status status = resultApiResponse.status();
@@ -78,14 +77,13 @@ public class BFLImageGenerationService {
                     status = Status.Unknown;
                 }
 
-                if (status == Status.Ready) {
-                    return resultApiResponse.result().sample();  // Returning the URL to the generated image
-                } else if (status == Status.TaskNotFound) {
-                    throw new IllegalStateException("Error: Task not found");
-                } else if (status == Status.Failed) {
-                    throw new IllegalStateException("Error: Task failed");
-                } else {
-                    System.out.println("Status: " + status);
+                switch (status) {
+                    case Ready -> {
+                        return resultApiResponse.result().sample();  // Returning the URL to the generated image
+                    }
+                    case TaskNotFound -> throw new IllegalStateException("Error: Task not found");
+                    case Failed -> throw new IllegalStateException("Error: Task failed");
+                    case Unknown, Pending, InProgress -> System.out.println("Status: " + status);  // Handle statuses that require waiting or unknown handling
                 }
             }
         }
