@@ -69,7 +69,6 @@ public class BFLImageGenerationService {
 
                 HttpResponse<String> resultResponse =
                         client.send(getResultRequest, HttpResponse.BodyHandlers.ofString());
-                //System.out.println("Raw response: " + resultResponse.body());
                 ApiResponse resultApiResponse = gson.fromJson(resultResponse.body(), ApiResponse.class);
 
                 Status status = resultApiResponse.status();
@@ -90,9 +89,11 @@ public class BFLImageGenerationService {
     }
 
     // Method to download and save the image to src/main/resources
-    public void downloadAndSaveImage(String imageUrl) throws IOException, InterruptedException {
+    public void downloadAndSaveImage(String imageUrl)
+            throws IOException, InterruptedException {
         // Generate the timestamp-based filename
-        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+        String timestamp = LocalDateTime.now()
+                .format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
         String fileName = "generated_image_" + timestamp + ".jpg";
 
         // Path to save the file (src/main/resources)
@@ -106,7 +107,8 @@ public class BFLImageGenerationService {
                     .build();
 
             // Using ofFile to directly save the response body into the file
-            HttpResponse<Path> response = client.send(request, HttpResponse.BodyHandlers.ofFile(outputPath));
+            HttpResponse<Path> response =
+                    client.send(request, HttpResponse.BodyHandlers.ofFile(outputPath));
 
             // Check if the response is successful (HTTP status 200)
             if (response.statusCode() == 200) {

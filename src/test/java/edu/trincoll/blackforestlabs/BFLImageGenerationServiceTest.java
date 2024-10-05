@@ -1,9 +1,11 @@
 package edu.trincoll.blackforestlabs;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@EnabledIfEnvironmentVariable(named = "BFL_API_KEY", matches = ".*")
 class BFLImageGenerationServiceTest {
     @Test
     void testImageGeneration() throws Exception {
