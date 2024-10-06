@@ -21,6 +21,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static edu.trincoll.blackforestlabs.BFLRecords.*;
+
 public class BFLImageGenerationService {
     private static final Logger logger = LoggerFactory.getLogger(BFLImageGenerationService.class);
     private static final String API_URL = "https://api.bfl.ml/v1/flux-pro-1.1";
