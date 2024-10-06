@@ -3,6 +3,8 @@ package edu.trincoll.blackforestlabs;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
@@ -14,9 +16,13 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class BFLImageGenerationService {
+    private static final Logger logger = LoggerFactory.getLogger(BFLImageGenerationService.class);
     private static final String API_URL = "https://api.bfl.ml/v1/flux-pro-1.1";
     private static final String RESULT_URL = "https://api.bfl.ml/v1/get_result";
     private static final String API_KEY = System.getenv("BFL_API_KEY");
@@ -36,7 +42,6 @@ public class BFLImageGenerationService {
         try (var client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(10))
                 .build()) {
-
             var request = HttpRequest.newBuilder()
                     .uri(URI.create(API_URL))
                     .header("accept", "application/json")
@@ -45,75 +50,108 @@ public class BFLImageGenerationService {
                     .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                     .build();
 
-            HttpResponse<String> response =
-                    client.send(request, HttpResponse.BodyHandlers.ofString());
-            ApiResponse apiResponse = gson.fromJson(response.body(), ApiResponse.class);
-            return apiResponse.id();
-        }
-    }
-
-    // Method to poll for the result
-    public String pollForResult(String requestId) throws Exception {
-        try (var client = HttpClient.newBuilder()
-                .connectTimeout(Duration.ofSeconds(10))
-                .build()) {
-
-            while (true) {
-                TimeUnit.MILLISECONDS.sleep(500);
-
-                var getResultRequest = HttpRequest.newBuilder()
-                        .uri(URI.create(RESULT_URL + "?id=" + requestId))
-                        .header("accept", "application/json")
-                        .header("x-key", API_KEY)
-                        .build();
-
-                HttpResponse<String> resultResponse =
-                        client.send(getResultRequest, HttpResponse.BodyHandlers.ofString());
-                ApiResponse resultApiResponse = gson.fromJson(resultResponse.body(), ApiResponse.class);
-
-                Status status = resultApiResponse.status();
-                if (status == null) {
-                    status = Status.Unknown;
-                }
-
-                switch (status) {
-                    case Ready -> {
-                        return resultApiResponse.result().sample();  // Returning the URL to the generated image
-                    }
-                    case TaskNotFound -> throw new IllegalStateException("Error: Task not found");
-                    case Failed -> throw new IllegalStateException("Error: Task failed");
-                    case Unknown, Pending, InProgress -> System.out.println("Status: " + status);  // Handle statuses that require waiting or unknown handling
-                }
+            var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() == 200) {
+                ApiResponse apiResponse = gson.fromJson(response.body(), ApiResponse.class);
+                return apiResponse.id();
+            } else {
+                throw new IOException("Failed to request image generation. HTTP Status Code: " + response.statusCode());
             }
         }
     }
 
-    // Method to download and save the image to src/main/resources
-    public void downloadAndSaveImage(String imageUrl)
-            throws IOException, InterruptedException {
-        // Generate the timestamp-based filename
-        String timestamp = LocalDateTime.now()
-                .format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-        String fileName = "generated_image_" + timestamp + ".jpg";
+    // Refactored method to download the image using CompletableFuture
+    public CompletableFuture<Path> downloadImageAsync(String requestId) {
+        CompletableFuture<Path> future = new CompletableFuture<>();
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
-        // Path to save the file (src/main/resources)
-        Path outputPath = Paths.get("src/main/resources", fileName);
+        logger.info("Starting scheduled polling to check if image is ready for request ID: {}", requestId);
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                logger.info("Polling for image readiness for request ID: {}", requestId);
+                if (isImageReady(requestId)) {
+                    logger.info("Image is ready for request ID: {}", requestId);
+                    scheduler.shutdown(); // Shut down the scheduler once the image is ready
+                    String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+                    Path outputPath = Paths.get("src/main/resources/output_image_" + timestamp + ".jpg");
+                    saveImageToPath(requestId, outputPath);
+                    logger.info("Image is available and saved to: {}", outputPath.toAbsolutePath());
+                    future.complete(outputPath);
+                } else {
+                    logger.info("Image status is not ready yet for request ID: {}", requestId);
+                }
+            } catch (Exception e) {
+                logger.error("An error occurred while checking image status or saving the image", e);
+                future.completeExceptionally(e);
+            }
+        }, 0, 5, TimeUnit.SECONDS);
 
-        // Using try-with-resources for AutoCloseable HttpClient
-        try (HttpClient client = HttpClient.newBuilder().build()) {
-            // Send GET request to download and directly save the image to file
-            HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(imageUrl))
+        return future;
+    }
+
+    // Method to check if the image is ready
+    private boolean isImageReady(String requestId) throws IOException, InterruptedException {
+        try (var client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(10))
+                .build()) {
+            var request = HttpRequest.newBuilder()
+                    .uri(URI.create(RESULT_URL + "?id=" + requestId))
+                    .header("accept", "application/json")
+                    .header("x-key", API_KEY)
+                    .GET()
                     .build();
 
-            // Using ofFile to directly save the response body into the file
-            HttpResponse<Path> response =
-                    client.send(request, HttpResponse.BodyHandlers.ofFile(outputPath));
-
-            // Check if the response is successful (HTTP status 200)
+            var response = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() == 200) {
-                System.out.println("Image saved successfully to: " + response.body().toAbsolutePath());
+                ApiResponse apiResponse = gson.fromJson(response.body(), ApiResponse.class);
+                return apiResponse.status() == Status.Ready;
             } else {
+                throw new IOException("Failed to check image status. HTTP Status Code: " + response.statusCode());
+            }
+        }
+    }
+
+    // Updated method to save the image to a specified path
+    private void saveImageToPath(String requestId, Path outputPath) throws IOException, InterruptedException {
+        try (var client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(10))
+                .build()) {
+            var request = HttpRequest.newBuilder()
+                    .uri(URI.create(RESULT_URL + "?id=" + requestId))
+                    .header("x-key", API_KEY)
+                    .GET()
+                    .build();
+
+            var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() == 200) {
+                ApiResponse apiResponse = gson.fromJson(response.body(), ApiResponse.class);
+                if (apiResponse.status() == Status.Ready && apiResponse.result() != null) {
+                    String imageUrl = apiResponse.result().sample();
+                    downloadImage(imageUrl, outputPath);
+                    logger.info("Image saved successfully to: {}", outputPath.toAbsolutePath());
+                } else {
+                    throw new IOException("Image not ready or result is null");
+                }
+            } else {
+                throw new IOException("Failed to get image URL. HTTP Status Code: " + response.statusCode());
+            }
+        }
+    }
+
+    // New method to download the image from the URL
+    private void downloadImage(String imageUrl, Path outputPath) throws IOException, InterruptedException {
+        try (var client = HttpClient.newBuilder()
+                .connectTimeout(Duration.ofSeconds(10))
+                .build()) {
+            var request = HttpRequest.newBuilder()
+                    .uri(URI.create(imageUrl))
+                    .GET()
+                    .build();
+
+            var response = client.send(request, HttpResponse.BodyHandlers.ofFile(outputPath));
+
+            if (response.statusCode() != 200) {
                 throw new IOException("Failed to download the image. HTTP Status Code: " + response.statusCode());
             }
         }
