@@ -16,6 +16,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.TimeUnit;
 
+import static edu.trincoll.blackforestlabs.BFLRecords.*;
+
 public class BFLImageGenerationService {
     private static final String API_URL = "https://api.bfl.ml/v1/flux-pro-1.1";
     private static final String RESULT_URL = "https://api.bfl.ml/v1/get_result";
