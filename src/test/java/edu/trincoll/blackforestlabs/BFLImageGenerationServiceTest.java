@@ -22,7 +22,10 @@ class BFLImageGenerationServiceTest {
         var service = new BFLImageGenerationService();
 
         // Create the request object
-        ImageRequest imageRequest = new ImageRequest("a warrior cat rides a dragon into battle");
+        ImageRequest imageRequest = new ImageRequest(
+                """
+                        Warrior cat rides a dragon into battle
+                        """);
 
         // Send the request and retrieve the request ID
         String requestId = service.requestImageGeneration(imageRequest);
