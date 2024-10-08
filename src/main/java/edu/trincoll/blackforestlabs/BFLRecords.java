@@ -1,9 +1,10 @@
 package edu.trincoll.blackforestlabs;
 
 public class BFLRecords {
-    public record ImageRequest(String prompt, int width,
-                               int height, boolean promptUpsampling,
-                               Integer seed, Integer safetyTolerance) {
+    public record ImageRequest(
+            String prompt, int width,
+            int height, boolean promptUpsampling,
+            Integer seed, Integer safetyTolerance) {
 
         @SuppressWarnings("unused")
         public ImageRequest(String prompt, int width, int height)  {

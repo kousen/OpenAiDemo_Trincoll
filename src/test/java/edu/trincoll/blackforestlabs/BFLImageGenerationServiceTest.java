@@ -24,7 +24,7 @@ class BFLImageGenerationServiceTest {
         // Create the request object
         ImageRequest imageRequest = new ImageRequest(
                 """
-                        Warrior cat rides a dragon into battle
+                        A warrior cat rides a dragon into battle
                         """);
 
         // Send the request and retrieve the request ID
