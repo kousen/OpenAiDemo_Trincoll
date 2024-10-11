@@ -9,13 +9,12 @@ public class BFLRecords {
             Integer seed,
             Integer safetyTolerance) {
 
-        @SuppressWarnings("unused")
         public ImageRequest(String prompt, int width, int height)  {
-            this(prompt, width, height, false, null, null);
+            this(prompt, width, height, false, null, 6);
         }
 
         public ImageRequest(String prompt) {
-            this(prompt, 1024, 768, false, null, null);
+            this(prompt, 1024, 768, false, null, 6);
         }
 
         // Validate the request parameters (compact constructor)

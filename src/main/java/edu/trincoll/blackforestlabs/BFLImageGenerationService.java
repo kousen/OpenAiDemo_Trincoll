@@ -19,8 +19,6 @@ import static edu.trincoll.blackforestlabs.BFLRecords.*;
 
 public class BFLImageGenerationService {
     private static final String BASE_URL = "https://api.bfl.ml/v1";
-    private static final String API_URL = "%s/flux-pro-1.1".formatted(BASE_URL);
-    private static final String RESULT_URL = "%s/get_result".formatted(BASE_URL);
     private static final String API_KEY = System.getenv("BFL_API_KEY");
 
     private final Gson gson = new GsonBuilder()
@@ -34,7 +32,7 @@ public class BFLImageGenerationService {
         try (var client = HttpClient.newHttpClient()) {
 
             var request = HttpRequest.newBuilder()
-                    .uri(URI.create(API_URL))
+                    .uri(URI.create("%s/flux-pro-1.1".formatted(BASE_URL)))
                     .header("Accept", "application/json")
                     .header("Content-Type", "application/json")
                     .header("x-key", API_KEY)
@@ -53,7 +51,7 @@ public class BFLImageGenerationService {
         try (var client = HttpClient.newHttpClient()) {
 
             var getResultRequest = HttpRequest.newBuilder()
-                    .uri(URI.create("%s?id=%s".formatted(RESULT_URL, requestId)))
+                    .uri(URI.create("%s/get_result?id=%s".formatted(BASE_URL, requestId)))
                     .header("Accept", "application/json")
                     .header("x-key", API_KEY)
                     .build();
@@ -67,8 +65,10 @@ public class BFLImageGenerationService {
 
                 switch (status) {
                     case Ready -> {
-                        String url = resultApiResponse.result().sample();
-                        return downloadAndSaveImage(url);
+                        ApiResponse.Result result = resultApiResponse.result();
+                        if (!result.prompt().isBlank())
+                            System.out.println(result.prompt());
+                        return downloadAndSaveImage(result.sample());
                     }
                     case TaskNotFound -> throw new IllegalStateException("Error: Task not found");
                     case Failed -> throw new IllegalStateException("Error: Task failed");
@@ -95,16 +95,13 @@ public class BFLImageGenerationService {
 
         // Using try-with-resources for AutoCloseable HttpClient
         try (var client = HttpClient.newHttpClient()) {
-            // Send GET request to download and directly save the image to file
             var request = HttpRequest.newBuilder()
                     .uri(URI.create(imageUrl))
                     .build();
 
-            // Using ofFile to directly save the response body into the file
             HttpResponse<Path> response =
                     client.send(request, HttpResponse.BodyHandlers.ofFile(outputPath));
 
-            // Check if the response is successful (HTTP status 200)
             if (response.statusCode() == 200) {
                 return "Image saved successfully to: " + response.body().toAbsolutePath();
             } else {

@@ -11,10 +11,30 @@ class BFLImageGenerationServiceTest {
     @Test
     void testImageGeneration() throws Exception {
         var service = new BFLImageGenerationService();
-        ImageRequest imageRequest =
-                new ImageRequest("""
+        var imageRequest = new ImageRequest("""
                         a stochastic parrot
                         """);
+
+        // Send the request and retrieve the request ID
+        String requestId = service.requestImageGeneration(imageRequest);
+        assertNotNull(requestId, "The request ID should not be null");
+
+        // Poll for the result and get the image URL
+        String resultSample = service.pollForResult(requestId);
+        assertNotNull(resultSample, "The result sample should not be null");
+        System.out.println(resultSample);
+    }
+
+    @Test
+    void testImageGenerationWithUpSampling() throws Exception {
+        var service = new BFLImageGenerationService();
+        var imageRequest = new ImageRequest("""
+                        a stochastic parrot
+                        """,
+                1024, 768,
+                true,
+                null,
+                6);
 
         // Send the request and retrieve the request ID
         String requestId = service.requestImageGeneration(imageRequest);
