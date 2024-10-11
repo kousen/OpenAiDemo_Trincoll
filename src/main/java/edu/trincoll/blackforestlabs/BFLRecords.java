@@ -2,9 +2,12 @@ package edu.trincoll.blackforestlabs;
 
 public class BFLRecords {
     public record ImageRequest(
-            String prompt, int width,
-            int height, boolean promptUpsampling,
-            Integer seed, Integer safetyTolerance) {
+            String prompt,
+            int width,
+            int height,
+            boolean promptUpsampling,
+            Integer seed,
+            Integer safetyTolerance) {
 
         @SuppressWarnings("unused")
         public ImageRequest(String prompt, int width, int height)  {
@@ -15,7 +18,7 @@ public class BFLRecords {
             this(prompt, 1024, 768, false, null, null);
         }
 
-        // Validate the request parameters
+        // Validate the request parameters (compact constructor)
         public ImageRequest {
             if (width < 256 || width > 1440) {
                 throw new IllegalArgumentException("Width must be between 256 and 1440");
@@ -35,9 +38,11 @@ public class BFLRecords {
         }
     }
 
+    public record AsyncResponse(String id) {}
+
     // Java record for the response JSON structure
     public record ApiResponse(String id, Status status, Result result) {
-        record Result(String sample) {} // The sample is expected to be the URL to the generated image
+        record Result(String sample, String prompt) {} // "sample" is the URL to the generated image
     }
 
     public enum Status {
