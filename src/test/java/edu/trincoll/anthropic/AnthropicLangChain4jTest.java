@@ -1,8 +1,5 @@
 package edu.trincoll.anthropic;
 
-import dev.langchain4j.data.document.Document;
-import dev.langchain4j.data.document.loader.UrlDocumentLoader;
-import dev.langchain4j.data.document.parser.TextDocumentParser;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ImageContent;
 import dev.langchain4j.data.message.TextContent;
@@ -13,6 +10,7 @@ import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
 import dev.langchain4j.model.chat.response.ChatResponse;
 import dev.langchain4j.model.output.Response;
+import org.jsoup.Jsoup;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -83,15 +81,12 @@ public class AnthropicLangChain4jTest {
     }
 
     @Test
-    void promptStuffing() {
-        Document feudDoc = UrlDocumentLoader.load(
-                "https://en.wikipedia.org/wiki/Drake%E2%80%93Kendrick_Lamar_feud",
-                new TextDocumentParser());
-        if (feudDoc.text().length() > 128 * 1024) {
-            System.out.println("Document too large: " + feudDoc.text().length());
-            System.out.println(feudDoc.text().substring(0, 1000));
-            return;
-        }
+    void promptStuffing() throws IOException {
+        String wikiText = Jsoup.connect(
+                "https://en.wikipedia.org/wiki/Drake%E2%80%93Kendrick_Lamar_feud")
+                .get()
+                .text();
+        System.out.println("Length of wikipedia article " + wikiText.length());
 
         String response = chatModel.generate(
                 UserMessage.from(
@@ -99,7 +94,7 @@ public class AnthropicLangChain4jTest {
                             Given the information in %s,
                             What was the beef about between
                             Drake and Kendrick Lamar?
-                            """.formatted(feudDoc.text()))))
+                            """.formatted(wikiText))))
                 .content().text();
         System.out.println(response);
     }
