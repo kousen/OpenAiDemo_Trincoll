@@ -1,4 +1,4 @@
-package edu.trincoll;
+package edu.trincoll.openai;
 
 import dev.langchain4j.data.image.Image;
 import dev.langchain4j.model.image.ImageModel;
@@ -14,7 +14,7 @@ public class Dalle3Service {
                 .build();
 
         Response<Image> imageResponse = model.generate("""
-            Two giraffes in a samurai sword fight
+            Two chimpanzees in a samurai sword fight with light sabers
             on the Moon with the Earth in the background.
             """);
         System.out.println(imageResponse.content().revisedPrompt());

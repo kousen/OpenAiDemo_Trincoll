@@ -1,11 +1,11 @@
-package edu.trincoll;
+package edu.trincoll.openai;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Comparator;
 
-import static edu.trincoll.HelloGPT.*;
+import static edu.trincoll.openai.HelloGPT.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HelloGPTTest {

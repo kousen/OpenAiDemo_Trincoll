@@ -1,4 +1,4 @@
-package edu.trincoll;
+package edu.trincoll.anthropic;
 
 import dev.langchain4j.data.document.Document;
 import dev.langchain4j.data.document.loader.UrlDocumentLoader;

@@ -1,4 +1,4 @@
-package edu.trincoll;
+package edu.trincoll.openai;
 
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.ImageContent;

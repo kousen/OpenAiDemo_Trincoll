@@ -1,4 +1,4 @@
-package edu.trincoll;
+package edu.trincoll.openai;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
