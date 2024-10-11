@@ -13,7 +13,7 @@ class BFLImageGenerationServiceTest {
         var service = new BFLImageGenerationService();
         ImageRequest imageRequest =
                 new ImageRequest("""
-                        a warrior cat rides a dragon into battle
+                        Tom and Jerry playing chess
                         """);
 
         // Send the request and retrieve the request ID

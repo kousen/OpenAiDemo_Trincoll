@@ -18,7 +18,7 @@ public class BFLRecords {
             this(prompt, 1024, 768, false, null, null);
         }
 
-        // Validate the request parameters
+        // Validate the request parameters (compact constructor)
         public ImageRequest {
             if (width < 256 || width > 1440) {
                 throw new IllegalArgumentException("Width must be between 256 and 1440");
