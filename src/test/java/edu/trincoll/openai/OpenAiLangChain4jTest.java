@@ -95,4 +95,16 @@ public class OpenAiLangChain4jTest {
         System.out.println(response);
     }
 
+    @Test
+    void feud_without_prompt_stuffing() {
+        String response = chatModel.generate(
+                UserMessage.from(
+                        TextContent.from("""
+                            What was the beef about between
+                            Drake and Kendrick Lamar?
+                            """)))
+                .content().text();
+        System.out.println(response);
+    }
+
 }

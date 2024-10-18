@@ -14,9 +14,13 @@ dependencies {
     implementation("com.google.code.gson:gson:2.11.0")
 
     // Langchain4j
-    implementation("dev.langchain4j:langchain4j-open-ai:0.34.0")
-    implementation("dev.langchain4j:langchain4j-anthropic:0.34.0")
-    implementation("dev.langchain4j:langchain4j:0.34.0")
+    implementation("dev.langchain4j:langchain4j-open-ai:0.35.0")
+    implementation("dev.langchain4j:langchain4j-anthropic:0.35.0")
+    implementation("dev.langchain4j:langchain4j-mistral-ai:0.35.0")
+    implementation("dev.langchain4j:langchain4j:0.35.0")
+
+    // Jsoup
+    implementation("org.jsoup:jsoup:1.18.1")
 
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.12")
