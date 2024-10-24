@@ -12,7 +12,9 @@ class BFLImageGenerationServiceTest {
     void testImageGeneration() throws Exception {
         var service = new BFLImageGenerationService();
         var imageRequest = new ImageRequest("""
-                        a stochastic parrot
+                        The old god Cthulhu
+                        having a beer with the boys
+                        while watching football on TV
                         """);
 
         // Send the request and retrieve the request ID
