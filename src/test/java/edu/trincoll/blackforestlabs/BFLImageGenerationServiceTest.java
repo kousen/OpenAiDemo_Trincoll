@@ -12,9 +12,8 @@ class BFLImageGenerationServiceTest {
     void testImageGeneration() throws Exception {
         var service = new BFLImageGenerationService();
         var imageRequest = new ImageRequest("""
-                        The old god Cthulhu
-                        having a beer with the boys
-                        while watching football on TV
+                        Cthulhu, the Elder God from the stories by HP Lovecraft,
+                        running the Boston Marathon
                         """);
 
         // Send the request and retrieve the request ID
@@ -31,7 +30,7 @@ class BFLImageGenerationServiceTest {
     void testImageGenerationWithUpSampling() throws Exception {
         var service = new BFLImageGenerationService();
         var imageRequest = new ImageRequest("""
-                        a stochastic parrot
+                        A scene from the movie "The Matrix" with a twist
                         """,
                 1024, 768,
                 true,

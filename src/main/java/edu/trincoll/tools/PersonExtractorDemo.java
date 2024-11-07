@@ -1,4 +1,4 @@
-package edu.trincoll;
+package edu.trincoll.tools;
 
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
@@ -21,8 +21,8 @@ public class PersonExtractorDemo {
 
     @Description("an address")
     record Address(
-            String street,
             Integer streetNumber,
+            String street,
             String city
     ) {
     }

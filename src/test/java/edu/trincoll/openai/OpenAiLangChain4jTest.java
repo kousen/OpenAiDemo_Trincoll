@@ -25,18 +25,6 @@ public class OpenAiLangChain4jTest {
                 .build();
 
     @Test
-    void perplexity() {
-        ChatLanguageModel perplexityModel = OpenAiChatModel.builder()
-                .apiKey(System.getenv("PERPLEXITY_API_KEY"))
-                .baseUrl("https://api.perplexity.ai")
-                .modelName("llama-3.1-sonar-small-128k-online")
-                .build();
-
-        String answer = perplexityModel.generate("How many r's are in the word 'strawberry'?");
-        System.out.println(answer);
-    }
-
-    @Test
     void o1mini() {
         ChatLanguageModel o1mini = OpenAiChatModel.builder()
                 .apiKey(apiKey)

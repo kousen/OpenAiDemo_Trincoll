@@ -1,4 +1,4 @@
-package edu.trincoll;
+package edu.trincoll.tools;
 
 import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.model.chat.ChatLanguageModel;
