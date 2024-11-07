@@ -4,13 +4,16 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.geometry.Insets;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -23,7 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ImageCarousel extends Application {
-    private final VBox root = new VBox(10); // Use VBox to stack controls vertically
+    private final VBox root = new VBox(10);
     private final StackPane imageContainer = new StackPane();
     private List<Image> images;
     private final ImageView imageView = new ImageView();
@@ -35,6 +38,7 @@ public class ImageCarousel extends Application {
     private final Map<Image, String> imageFilenames = new HashMap<>();
     private Button toggleFullScreenButton;
     private boolean wasMaximized = false;
+    private Timeline resizeTimeline;
 
     public static void main(String[] args) {
         launch(args);
@@ -69,7 +73,6 @@ public class ImageCarousel extends Application {
     private void setupControls() {
         toggleFullScreenButton = new Button("Toggle Full Screen (F11)");
         toggleFullScreenButton.setOnAction(e -> toggleFullScreen());
-        // Center the button
         toggleFullScreenButton.setMaxWidth(Double.MAX_VALUE);
     }
 
@@ -77,9 +80,7 @@ public class ImageCarousel extends Application {
         root.setPadding(new Insets(PADDING));
         imageContainer.getChildren().add(imageView);
         root.getChildren().addAll(toggleFullScreenButton, imageContainer);
-
-        // Make the image container fill available space
-        VBox.setVgrow(imageContainer, javafx.scene.layout.Priority.ALWAYS);
+        VBox.setVgrow(imageContainer, Priority.ALWAYS);
     }
 
     private void setupKeyboardHandlers(Scene scene) {
@@ -87,57 +88,60 @@ public class ImageCarousel extends Application {
             if (e.getCode() == KeyCode.F11) {
                 toggleFullScreen();
             } else if (e.getCode() == KeyCode.ESCAPE && stage.isFullScreen()) {
-                toggleFullScreen(); // Use the same toggle method for consistency
+                toggleFullScreen();
             }
         });
 
-        // Add a full screen property listener to handle external full screen changes
         stage.fullScreenProperty().addListener((obs, wasFullScreen, isFullScreen) -> {
-            if (!isFullScreen) {
-                javafx.application.Platform.runLater(() -> {
-                    if (wasMaximized) {
-                        stage.setMaximized(true);
-                    } else {
-                        // Reset to default size first
-                        stage.setWidth(DEFAULT_WIDTH);
-                        stage.setHeight(DEFAULT_HEIGHT);
-                        // Then adjust to current image
-                        adjustCurrentImageSize();
-                    }
-                });
+            if (isFullScreen) {
+                wasMaximized = stage.isMaximized();
+                imageContainer.setPrefSize(
+                        Screen.getPrimary().getVisualBounds().getWidth(),
+                        Screen.getPrimary().getVisualBounds().getHeight()
+                );
+                toggleFullScreenButton.setVisible(false);
+            } else {
+                if (resizeTimeline != null) {
+                    resizeTimeline.stop();
+                }
+
+                resizeTimeline = new Timeline(
+                        new KeyFrame(Duration.ZERO, e -> attemptResize()),
+                        new KeyFrame(Duration.millis(100), e -> attemptResize()),
+                        new KeyFrame(Duration.millis(250), e -> attemptResize()),
+                        new KeyFrame(Duration.millis(500), e -> attemptResize())
+                );
+                resizeTimeline.play();
+            }
+        });
+    }
+
+    private void attemptResize() {
+        javafx.application.Platform.runLater(() -> {
+            if (!stage.isFullScreen()) {
+                toggleFullScreenButton.setVisible(true);
+                imageContainer.setPrefSize(-1, -1);
+
+                if (wasMaximized) {
+                    stage.setMaximized(true);
+                } else {
+                    adjustCurrentImageSize();
+                }
+
+                root.layout();
+                stage.sizeToScene();
             }
         });
     }
 
     private void toggleFullScreen() {
-        if (!stage.isFullScreen()) {
-            // Store current window state before going full screen
-            wasMaximized = stage.isMaximized();
-            stage.setFullScreen(true);
-        } else {
-            stage.setFullScreen(false);
-            // Add a small delay to let the stage exit full-screen before resizing
-            javafx.application.Platform.runLater(() -> {
-                if (wasMaximized) {
-                    stage.setMaximized(true);
-                } else {
-                    // Reset to default size first to ensure clean resize
-                    stage.setWidth(DEFAULT_WIDTH);
-                    stage.setHeight(DEFAULT_HEIGHT);
-                    // Then adjust to current image
-                    adjustCurrentImageSize();
-                }
-            });
-        }
-        adjustCurrentImageSize();
+        stage.setFullScreen(!stage.isFullScreen());
     }
 
     private void setupImageView() {
         imageView.setPreserveRatio(true);
         imageView.setFitWidth(DEFAULT_WIDTH - PADDING * 2);
         imageView.setFitHeight(DEFAULT_HEIGHT - PADDING * 2);
-
-        // Make the ImageView respond to size changes of its container
         imageView.fitWidthProperty().bind(imageContainer.widthProperty());
         imageView.fitHeightProperty().bind(imageContainer.heightProperty());
     }
@@ -186,11 +190,9 @@ public class ImageCarousel extends Application {
 
     private Image loadImage(Path path) {
         try {
-            // Try loading synchronously first to validate
             try (var input = Files.newInputStream(path)) {
                 Image img = new Image(input);
                 if (!img.isError() && img.getWidth() > 0) {
-                    // If successful, load with background loading enabled
                     String fileUri = path.toUri().toString();
                     Image finalImg = new Image(fileUri, true);
                     imageFilenames.put(finalImg, path.getFileName().toString());
@@ -226,43 +228,43 @@ public class ImageCarousel extends Application {
 
         double imgWidth = currentImage.getWidth();
         double imgHeight = currentImage.getHeight();
-        javafx.geometry.Rectangle2D screenBounds = javafx.stage.Screen.getPrimary().getVisualBounds();
+        Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
 
         if (stage.isFullScreen()) {
-            // In full screen, use the screen dimensions
             imageContainer.setPrefSize(screenBounds.getWidth(), screenBounds.getHeight());
             toggleFullScreenButton.setVisible(false);
-        } else {
-            // Reset container size
-            imageContainer.setPrefSize(-1, -1);
-            toggleFullScreenButton.setVisible(true);
+            return;
+        }
 
-            // Calculate maximum allowed dimensions (90% of screen)
-            double maxWidth = screenBounds.getWidth() * 0.9;
-            double maxHeight = screenBounds.getHeight() * 0.9;
+        imageContainer.setPrefSize(-1, -1);
+        toggleFullScreenButton.setVisible(true);
 
-            // Calculate scale to fit within screen bounds
-            double scale = Math.min(
-                    maxWidth / imgWidth,
-                    maxHeight / imgHeight
-            );
+        double maxWidth = screenBounds.getWidth() * 0.9;
+        double maxHeight = screenBounds.getHeight() * 0.9;
 
-            // Apply scaling
-            double finalWidth = scale < 1 ? imgWidth * scale : imgWidth;
-            double finalHeight = scale < 1 ? imgHeight * scale : imgHeight;
+        double scale = Math.min(
+                maxWidth / imgWidth,
+                maxHeight / imgHeight
+        );
 
-            // Account for padding and button
-            Insets padding = root.getPadding();
-            double buttonHeight = toggleFullScreenButton.getHeight();
-            double paddingWidth = padding.getLeft() + padding.getRight();
-            double paddingHeight = padding.getTop() + padding.getBottom() + buttonHeight + 10;
+        double finalWidth = Math.min(imgWidth * scale, maxWidth);
+        double finalHeight = Math.min(imgHeight * scale, maxHeight);
 
-            // Set stage size with some minimal bounds
-            stage.setWidth(Math.max(DEFAULT_WIDTH, finalWidth + paddingWidth));
-            stage.setHeight(Math.max(DEFAULT_HEIGHT, finalHeight + paddingHeight));
+        Insets padding = root.getPadding();
+        double buttonHeight = toggleFullScreenButton.prefHeight(-1);
+        double paddingWidth = padding.getLeft() + padding.getRight();
+        double paddingHeight = padding.getTop() + padding.getBottom() + buttonHeight + 10;
 
-            // Center on screen
+        double newWidth = Math.max(DEFAULT_WIDTH, finalWidth + paddingWidth);
+        double newHeight = Math.max(DEFAULT_HEIGHT, finalHeight + paddingHeight);
+
+        if (Math.abs(stage.getWidth() - newWidth) > 1 ||
+            Math.abs(stage.getHeight() - newHeight) > 1) {
+            stage.setWidth(newWidth);
+            stage.setHeight(newHeight);
             stage.centerOnScreen();
         }
+
+        root.layout();
     }
 }
