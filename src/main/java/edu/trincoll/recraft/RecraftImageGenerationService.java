@@ -43,7 +43,6 @@ public class RecraftImageGenerationService {
 
             HttpResponse<String> response =
                     client.send(request, HttpResponse.BodyHandlers.ofString());
-            response.headers().map().forEach((k, v) -> System.out.println(k + ": " + v));
             return gson.fromJson(response.body(), ImagesResponse.class);
         }
     }
@@ -89,11 +88,11 @@ public class RecraftImageGenerationService {
     }
 
     private String getFileExtension(String contentType) {
-        Map<String, String> mimeTypeToExtension = Map.of(
-                "image/jpeg", ".jpg",
-                "image/png", ".png",
-                "image/gif", ".gif",
-                "image/webp", ".webp"
+        Map<String, String> mimeTypeToExtension = Map.ofEntries(
+                Map.entry("image/jpeg", ".jpg"),
+                Map.entry("image/png", ".png"),
+                Map.entry("image/gif", ".gif"),
+                Map.entry("image/webp", ".webp")
         );
 
         return mimeTypeToExtension.getOrDefault(contentType, "");
