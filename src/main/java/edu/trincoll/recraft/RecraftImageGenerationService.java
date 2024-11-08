@@ -18,7 +18,7 @@ import static edu.trincoll.recraft.RecraftRecords.*;
 
 // See https://www.recraft.ai/docs
 public class RecraftImageGenerationService {
-    private static final String BASE_URL = "https://external.api.recraft.ai/v1/images/generations";
+    private static final String BASE_URL = "https://external.api.recraft.ai/v1/";
     private static final String API_KEY = System.getenv("RECRAFT_API_KEY");
 
     private final Gson gson = new GsonBuilder()
@@ -31,7 +31,7 @@ public class RecraftImageGenerationService {
 
         try (var client = HttpClient.newHttpClient()) {
             var request = HttpRequest.newBuilder()
-                    .uri(URI.create(BASE_URL))
+                    .uri(URI.create(BASE_URL + "images/generations"))
                     .header("Accept", "application/json")
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer %s".formatted(API_KEY))
@@ -40,6 +40,7 @@ public class RecraftImageGenerationService {
 
             HttpResponse<String> response =
                     client.send(request, HttpResponse.BodyHandlers.ofString());
+            response.headers().map().forEach((k, v) -> System.out.println(k + ": " + v));
             return gson.fromJson(response.body(), ImagesResponse.class);
         }
     }
@@ -50,7 +51,7 @@ public class RecraftImageGenerationService {
         // Generate the timestamp-based filename
         String timestamp = LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-        String fileName = "generated_image_" + timestamp + ".jpg";
+        String fileName = "generated_image_" + timestamp + ".webp";
 
         // Path to save the file (src/main/resources)
         Path outputPath = Paths.get("src/main/resources", fileName);
@@ -63,6 +64,7 @@ public class RecraftImageGenerationService {
 
             HttpResponse<Path> response =
                     client.send(request, HttpResponse.BodyHandlers.ofFile(outputPath));
+            System.out.println("Headers: " + response.headers());
 
             if (response.statusCode() == 200) {
                 return "Image saved successfully to: " + response.body().toAbsolutePath();
