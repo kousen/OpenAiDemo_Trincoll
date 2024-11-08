@@ -9,12 +9,15 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 
-import static edu.trincoll.recraft.RecraftRecords.*;
+import static edu.trincoll.recraft.RecraftRecords.ImageRequest;
+import static edu.trincoll.recraft.RecraftRecords.ImagesResponse;
 
 // See https://www.recraft.ai/docs
 public class RecraftImageGenerationService {
@@ -45,34 +48,55 @@ public class RecraftImageGenerationService {
         }
     }
 
-    @SuppressWarnings("DuplicatedCode")
-    public String saveImage(String imageUrl)
-            throws IOException, InterruptedException {
+    public String saveImage(String imageUrl) throws IOException, InterruptedException {
         // Generate the timestamp-based filename
         String timestamp = LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-        String fileName = "generated_image_" + timestamp + ".webp";
+        String fileNamePrefix = "generated_image_" + timestamp;
 
         // Path to save the file (src/main/resources)
-        Path outputPath = Paths.get("src/main/resources", fileName);
+        Path outputPath = Paths.get("src/main/resources");
 
         // Using try-with-resources for AutoCloseable HttpClient
         try (var client = HttpClient.newHttpClient()) {
             var request = HttpRequest.newBuilder()
                     .uri(URI.create(imageUrl))
                     .build();
-
             HttpResponse<Path> response =
-                    client.send(request, HttpResponse.BodyHandlers.ofFile(outputPath));
-            System.out.println("Headers: ");
-            response.headers().map().forEach((k, v) -> System.out.println(k + ": " + v));
+                    client.send(request, HttpResponse.BodyHandlers.ofFile(
+                            outputPath.resolve("temp_image")));
 
             if (response.statusCode() == 200) {
-                return "Image saved successfully to: " + response.body().toAbsolutePath();
+                // Extract Content-Type from response headers
+                String contentType = response.headers().firstValue("Content-Type").orElse("");
+                String fileExtension = getFileExtension(contentType);
+                System.out.println("Content-Type: " + contentType);
+
+                if (fileExtension.isEmpty()) {
+                    throw new IOException("Unsupported content type: " + contentType);
+                }
+
+                Path finalPath = outputPath.resolve(fileNamePrefix + fileExtension);
+                // Rename the temporary file to the final file name with the correct extension
+                Files.move(response.body(), finalPath);
+
+                return "Image saved successfully to: " + finalPath.toAbsolutePath();
             } else {
                 throw new IOException(
                         "Failed to download the image. HTTP Status Code: " + response.statusCode());
             }
         }
     }
+
+    private String getFileExtension(String contentType) {
+        Map<String, String> mimeTypeToExtension = Map.of(
+                "image/jpeg", ".jpg",
+                "image/png", ".png",
+                "image/gif", ".gif",
+                "image/webp", ".webp"
+        );
+
+        return mimeTypeToExtension.getOrDefault(contentType, "");
+    }
+
 }

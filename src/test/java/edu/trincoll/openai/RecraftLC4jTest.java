@@ -16,7 +16,8 @@ public class RecraftLC4jTest {
         ImagesResponse imagesResponse = service.requestImageGeneration(
                 new ImageRequest(
                         """
-                                Ducks dressed as pirates on a treasure hunt
+                                Capybara witches dance around a
+                                campfire in the forest at night.
                                 """,
                         1,
                         "realistic_image",
