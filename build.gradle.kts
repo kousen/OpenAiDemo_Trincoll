@@ -1,5 +1,5 @@
 plugins {
-    id("java")
+    id("application")
     id("org.openjfx.javafxplugin") version "0.1.0"
 }
 
@@ -8,15 +8,16 @@ version = "1.0-SNAPSHOT"
 
 javafx {
     version = "21"
-    modules = listOf("javafx.controls", "javafx.fxml", "javafx.media")
+    modules = listOf("javafx.controls")
 }
 
-
+application {
+    mainClass.set("edu.trincoll.ImageCarousel")
+}
 
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
-        vendor = JvmVendorSpec.AZUL
     }
 }
 
@@ -27,7 +28,6 @@ repositories {
 dependencies {
     // JavaFX
     implementation("org.openjfx:javafx-controls:21.0.2")
-    implementation("org.openjfx:javafx-fxml:21.0.2")
 
     // Gson parser
     implementation("com.google.code.gson:gson:2.11.0")

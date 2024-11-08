@@ -64,7 +64,8 @@ public class RecraftImageGenerationService {
 
             HttpResponse<Path> response =
                     client.send(request, HttpResponse.BodyHandlers.ofFile(outputPath));
-            System.out.println("Headers: " + response.headers());
+            System.out.println("Headers: ");
+            response.headers().map().forEach((k, v) -> System.out.println(k + ": " + v));
 
             if (response.statusCode() == 200) {
                 return "Image saved successfully to: " + response.body().toAbsolutePath();
