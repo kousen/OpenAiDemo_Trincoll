@@ -1,6 +1,5 @@
-package edu.trincoll.openai;
+package edu.trincoll.recraft;
 
-import edu.trincoll.recraft.RecraftImageGenerationService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
