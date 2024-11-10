@@ -37,7 +37,8 @@ public class PerplexityService {
                     .POST(HttpRequest.BodyPublishers.ofString(body))
                     .build();
 
-            HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            HttpResponse<String> response =
+                    client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
             log.debug("Chat completion response: {}", response.body());
             if (response.statusCode() != 200) {
                 throw new RuntimeException("Failed to complete chat: " + response.body());

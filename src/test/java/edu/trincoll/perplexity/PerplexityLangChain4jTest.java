@@ -1,6 +1,7 @@
 package edu.trincoll.perplexity;
 
 import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.data.message.SystemMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
@@ -26,7 +27,14 @@ public class PerplexityLangChain4jTest {
     @Test
     void generateFromUserMessage() {
         Response<AiMessage> response = perplexityModel.generate(
+                SystemMessage.from("""
+                        You are an artificial intelligence assistant and you need to
+                        engage in a helpful, detailed, polite conversation with a user.
+                        """),
                 UserMessage.from("How many stars are in the sky?"));
-        System.out.println(response.content().text());
+        System.out.println("Finish reason: " + response.finishReason());
+        System.out.println("Metadata: " + response.metadata());
+        System.out.println("Answer: " + response.content().text());
+        System.out.println("Token usage: " + response.tokenUsage());
     }
 }

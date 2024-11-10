@@ -19,6 +19,15 @@ public class PerplexityRecords {
         }
     }
 
+    public record ChatCompletionResponse(
+            String id,
+            String model,
+            long created,
+            List<Choice> choices,
+            Usage usage,
+            List<String> citations
+    ) {}
+
     public record Choice(
             int index,
             String finishReason,
@@ -29,15 +38,5 @@ public class PerplexityRecords {
             int promptTokens,
             int completionTokens,
             int totalTokens
-    ) {}
-
-    public record ChatCompletionResponse(
-            String id,
-            String model,
-            String object,
-            long created,
-            List<Choice> choices,
-            Usage usage,
-            List<String> citations
     ) {}
 }
