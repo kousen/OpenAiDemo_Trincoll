@@ -23,6 +23,7 @@ java {
 
 repositories {
     mavenCentral()
+    maven("https://clojars.org/repo/")
 }
 
 dependencies {
@@ -41,6 +42,10 @@ dependencies {
 
     // Jsoup
     implementation("org.jsoup:jsoup:1.18.1")
+
+    // Audio
+    implementation("com.assemblyai:assemblyai-java:4.0.0")
+    implementation("net.clojars.dulouser:libretranslate-java:1.0.7")
 
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.12")
