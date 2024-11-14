@@ -1,4 +1,4 @@
-package edu.trincoll;
+package edu.trincoll.audio;
 
 import com.google.gson.Gson;
 import net.suuft.libretranslate.Language;
@@ -18,6 +18,7 @@ public class LibreTranslateDemo {
     public record TranslateRequest(String source, String target, String q) {}
     public record TranslateResponse(String translatedText) {}
 
+    // Locally installed translation service (through Docker)
     public String translate(TranslateRequest request) {
         String text = gson.toJson(request);
         try (var httpClient = HttpClient.newHttpClient()) {
@@ -36,10 +37,8 @@ public class LibreTranslateDemo {
         }
     }
 
-
-    public static void main(String[] args) {
-        String translation = Translator.translate(
-                Language.ENGLISH, Language.SPANISH, "Hello, World!");
-        System.out.println(translation);
+    // Remote service accessed through LibreTranslate API
+    public String translate(Language source, Language target, String text) {
+        return Translator.translate(source, target, text);
     }
 }

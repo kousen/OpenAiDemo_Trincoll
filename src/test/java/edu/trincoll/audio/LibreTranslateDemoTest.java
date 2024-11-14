@@ -1,8 +1,9 @@
-package edu.trincoll;
+package edu.trincoll.audio;
 
+import net.suuft.libretranslate.Language;
 import org.junit.jupiter.api.Test;
 
-import static edu.trincoll.LibreTranslateDemo.*;
+import static edu.trincoll.audio.LibreTranslateDemo.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class LibreTranslateDemoTest {
@@ -30,5 +31,11 @@ class LibreTranslateDemoTest {
                 motor es alimentado por la biblioteca de código abierto Argos Translate."""
                         .replaceAll("\\n", " ").trim(),
                 response.replaceAll("\\n", " ").trim());
+    }
+
+    @Test
+    void translateRemote() {
+        var response = demo.translate(Language.ENGLISH, Language.SPANISH, "Hello, World!");
+        assertEquals("¡Hola, Mundo!", response);
     }
 }

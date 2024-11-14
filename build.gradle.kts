@@ -46,6 +46,7 @@ dependencies {
     // Audio
     implementation("com.assemblyai:assemblyai-java:4.0.0")
     implementation("net.clojars.dulouser:libretranslate-java:1.0.7")
+    implementation("net.andrewcpu:elevenlabs-api:2.7.8")
 
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.12")
