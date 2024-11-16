@@ -6,6 +6,10 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import static edu.trincoll.audio.LibreTranslateApp.TranslateRequest;
 
@@ -51,15 +55,48 @@ public class AllTogether {
     }
 
     private void translateAndGenerateSpeech(List<String> languages, String transcribedText) {
-        languages.forEach(language -> {
-            String translatedText = libreTranslate.translate(
-                    new TranslateRequest("en", language, transcribedText));
-            String fileName = "translated_audio_" + language;
-            elevenLabs.generateSpeech(translatedText, fileName);
+        // Step 1: Perform translations in parallel
+        Map<String, String> translations;
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            var start = System.currentTimeMillis();
+
+            // First, create all futures without joining them
+            Map<String, CompletableFuture<String>> translationFutures = languages.stream()
+                    .collect(Collectors.toMap(
+                            language -> language,
+                            language -> CompletableFuture.supplyAsync(
+                                    () -> libreTranslate.translate(
+                                            new TranslateRequest("en", language, transcribedText)),
+                                    executor)
+                    ));
+
+            // Then wait for all futures to complete
+            translations = translationFutures.entrySet().stream()
+                    .collect(Collectors.toMap(
+                            Map.Entry::getKey,
+                            entry -> entry.getValue().join()
+                    ));
+
+            var end = System.currentTimeMillis();
+            logger.info("All translations completed in {} ms", end - start);
+        } catch (Exception e) {
+            logger.error("Error during translation", e);
+            throw new RuntimeException(e);
+        }
+
+        // Step 2: Generate speech sequentially using the completed translations
+        translations.forEach((language, translatedText) -> {
+            try {
+                String fileName = "translated_audio_" + language;
+                elevenLabs.generateSpeech(translatedText, fileName);
+                logger.info("Generated speech for language: {}", language);
+            } catch (Exception e) {
+                logger.error("Error generating speech for language: {}", language, e);
+            }
         });
     }
 
     public static void main(String[] args) throws IOException {
-        new AllTogether().run(List.of("es", "fr", "de", "hi", "zh"));
+        new AllTogether().run(List.of("de", "ga", "hi", "pl", "zh"));
     }
 }

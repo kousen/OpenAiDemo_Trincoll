@@ -26,6 +26,11 @@ repositories {
     maven("https://clojars.org/repo/")
 }
 
+configurations.all {
+    exclude(group = "org.slf4j", module = "slf4j-simple")
+    exclude(group = "org.slf4j", module = "slf4j-nop")
+}
+
 dependencies {
     // JavaFX
     implementation("org.openjfx:javafx-controls:21.0.2")
@@ -51,7 +56,6 @@ dependencies {
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.12")
     implementation("ch.qos.logback:logback-classic:1.5.3")
-    implementation("org.apache.logging.log4j:log4j-core:2.23.1")
 
     // Testing
     testImplementation(platform("org.junit:junit-bom:5.11.0"))
