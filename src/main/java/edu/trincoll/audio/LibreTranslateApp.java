@@ -10,7 +10,9 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-public class LibreTranslateDemo {
+public class LibreTranslateApp {
+    // Be sure to start the local translation service before running this code
+    // In the LibreTranslate directory, run "./run.sh --port 5001"
     private final static String LOCAL_TRANSLATE_URL = "http://localhost:5001/translate";
 
     private final Gson gson = new Gson();
@@ -33,6 +35,7 @@ public class LibreTranslateDemo {
             var json = gson.fromJson(response.body(), TranslateResponse.class);
             return json.translatedText();
         } catch (IOException | InterruptedException e) {
+            System.err.println("Error translating text. Is the local server running?");
             throw new RuntimeException(e);
         }
     }

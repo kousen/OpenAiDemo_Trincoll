@@ -3,11 +3,11 @@ package edu.trincoll.audio;
 import net.suuft.libretranslate.Language;
 import org.junit.jupiter.api.Test;
 
-import static edu.trincoll.audio.LibreTranslateDemo.*;
+import static edu.trincoll.audio.LibreTranslateApp.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class LibreTranslateDemoTest {
-    private final LibreTranslateDemo demo = new LibreTranslateDemo();
+class LibreTranslateAppTest {
+    private final LibreTranslateApp demo = new LibreTranslateApp();
 
     @Test
     void translate() {

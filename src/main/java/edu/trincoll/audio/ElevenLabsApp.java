@@ -15,31 +15,26 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 
-public class ElevenLabsDemo {
-    public static void main(String[] args) {
+public class ElevenLabsApp {
+
+    public ElevenLabsApp() {
+        // Set the API key
         ElevenLabs.setApiKey(System.getenv("ELEVENLABS_API_KEY"));
+    }
 
-        String text = """
-                Here is text that I would like
-                to convert to speech using the
-                ElevenLabs API. This is a
-                multi-line string that will be
-                converted to speech.
-                """;
-
+    public void generateSpeech(String text, String fileName) {
         try (InputStream inputStream = SpeechGenerationBuilder.textToSpeech()
-                .streamed() // output type of file (or use .streamed() for an InputStream)
+                .streamed()
                 .setText(text)
                 .setGeneratedAudioOutputFormat(GeneratedAudioOutputFormat.MP3_44100_128)
                 .setVoiceId("voiceIdString")
                 .setVoiceSettings(VoiceSettings.getDefaultVoiceSettings())
-                .setVoice(Voice.getVoice("onwK4e9ZLuTAKqWW03F9")) // or use a voice object, which will pull settings / ID out of the Voice
+                .setVoice(Voice.getVoice("onwK4e9ZLuTAKqWW03F9"))
                 .setModel(ElevenLabsVoiceModel.ELEVEN_MULTILINGUAL_V2)
                 .setLatencyOptimization(StreamLatencyOptimization.NONE)
                 .build()) {
 
-            // Save the InputStream to a file
-            Path outputPath = Paths.get("src/main/resources/output.mp3");
+            Path outputPath = Paths.get("src/main/resources/", fileName + ".mp3");
             Files.copy(inputStream, outputPath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             throw new RuntimeException(e);
