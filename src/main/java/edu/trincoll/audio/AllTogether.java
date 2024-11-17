@@ -97,6 +97,6 @@ public class AllTogether {
     }
 
     public static void main(String[] args) throws IOException {
-        new AllTogether().run(List.of("de", "ga", "hi", "pl", "zh"));
+        new AllTogether().run(List.of("de", "el", "ga", "hi", "pl", "zh"));
     }
 }

@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration>
+<configuration scan="true">
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <!-- Set logging level for your package -->
-    <logger name="edu.trincoll" level="INFO"/>
+    <!-- Application logging -->
+    <logger name="edu.trincoll" level="DEBUG"/>
+
+    <!-- Third-party logging -->
+    <logger name="org.slf4j" level="WARN"/>
+    <logger name="ch.qos.logback" level="WARN"/>
 
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>

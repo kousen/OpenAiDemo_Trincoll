@@ -19,7 +19,7 @@ import java.time.Instant;
 
 public class ElevenLabsApp {
     private final Logger logger = LoggerFactory.getLogger(ElevenLabsApp.class);
-    private static final String VOICE_ID = "pVnrL6sighQX7hVz89cp";
+    private static final String VOICE_ID = "CXJAacovzWn9Fp4Rcjcs";
 
     public ElevenLabsApp() {
         String apiKey = System.getenv("ELEVENLABS_API_KEY");

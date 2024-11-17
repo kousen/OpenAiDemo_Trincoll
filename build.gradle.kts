@@ -27,8 +27,16 @@ repositories {
 }
 
 configurations.all {
+    resolutionStrategy {
+        // Force usage of a specific slf4j-api version
+        force("org.slf4j:slf4j-api:2.0.12")
+    }
+    // Exclude all other SLF4J providers
     exclude(group = "org.slf4j", module = "slf4j-simple")
     exclude(group = "org.slf4j", module = "slf4j-nop")
+    exclude(group = "org.slf4j", module = "slf4j-jdk14")
+    exclude(group = "org.slf4j", module = "slf4j-log4j12")
+    exclude(group = "org.slf4j", module = "slf4j-reload4j")
 }
 
 dependencies {

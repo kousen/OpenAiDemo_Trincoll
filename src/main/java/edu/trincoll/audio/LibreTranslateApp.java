@@ -31,7 +31,6 @@ public class LibreTranslateApp {
                 .POST(HttpRequest.BodyPublishers.ofString(text))
                 .build();
             var response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-            System.out.println(response.body());
             var json = gson.fromJson(response.body(), TranslateResponse.class);
             return json.translatedText();
         } catch (IOException | InterruptedException e) {
