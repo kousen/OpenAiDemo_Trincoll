@@ -128,6 +128,6 @@ public class StreamingAllTogether {
 
     public static void main(String[] args) throws IOException {
         logger.info("Starting StreamingAllTogether application");
-        new StreamingAllTogether().run(List.of("de", "el", "en", "ga", "hi", "pl", "zh"));
+        new StreamingAllTogether().run(List.of("de", "el", "en", "hi", "pl", "zh"));
     }
 }

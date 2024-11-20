@@ -1,8 +1,5 @@
 package edu.trincoll.audio;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -16,7 +13,6 @@ import static edu.trincoll.audio.LibreTranslateApp.TranslateRequest;
 @SuppressWarnings("ResultOfMethodCallIgnored")
 public class AllTogether {
     private static final String RECORDING_FILE = "recorded_audio.wav";
-    private final Logger logger = LoggerFactory.getLogger(AllTogether.class);
 
     private final AudioRecorder recorder = new AudioRecorder();
     private final AssemblyAITranscribeApp assemblyAITranscribe = new AssemblyAITranscribeApp();
@@ -27,21 +23,21 @@ public class AllTogether {
         recordAudio();
         String transcribedText = transcribeAudio();
         if (transcribedText.isBlank()) {
-            logger.error("No text transcribed. Exiting...");
+            System.out.println("No text transcribed. Exiting...");
             return;
         }
         translateAndGenerateSpeech(languages, transcribedText);
-        logger.info("All done");
+        System.out.println("All done");
     }
 
     private void recordAudio() throws IOException {
         recorder.startRecording();
         try (var input = System.in) {
-            logger.info("Recording started. Press Enter to stop...");
+            System.out.println("Recording started. Press Enter to stop...");
             input.read();
         }
         recorder.stopRecording();
-        logger.info("Recording stopped.");
+        System.out.println("Recording stopped.");
     }
 
     private String transcribeAudio() {
@@ -49,7 +45,7 @@ public class AllTogether {
             return assemblyAITranscribe.transcribe(
                     new File(RECORDING_FILE)).orElseThrow();
         } catch (IOException e) {
-            logger.error("Error during transcription", e);
+            System.out.println("Error during transcription");
             throw new RuntimeException(e);
         }
     }
@@ -78,9 +74,9 @@ public class AllTogether {
                     ));
 
             var end = System.currentTimeMillis();
-            logger.info("All translations completed in {} ms", end - start);
+            System.out.println("All translations completed in " + (end - start) + "ms");
         } catch (Exception e) {
-            logger.error("Error during translation", e);
+            System.out.println("Error during translation");
             throw new RuntimeException(e);
         }
 
@@ -89,9 +85,9 @@ public class AllTogether {
             try {
                 String fileName = "translated_audio_" + language;
                 elevenLabs.generateSpeech(translatedText, fileName);
-                logger.info("Generated speech for language: {}", language);
+                System.out.println("Generated speech for language: " + language);
             } catch (Exception e) {
-                logger.error("Error generating speech for language: {}", language, e);
+                System.out.println("Error generating speech for language: " + language);
             }
         });
     }

@@ -29,9 +29,18 @@ public class OpenAiLangChain4jTest {
         ChatLanguageModel o1mini = OpenAiChatModel.builder()
                 .apiKey(apiKey)
                 .modelName("o1-mini")
+                .temperature(1.0) // temperature = 1 for o1 required
                 .build();
         System.out.println(
-                o1mini.generate("What is the meaning of life?"));
+                o1mini.generate("""
+                        The `RealTimeTranscriber` example on the AssemblyAI website
+                        https://www.assemblyai.com/docs/getting-started/transcribe-streaming-audio-from-a-microphone/java
+                        uses the class to transcribe voice inputs sentence by sentence.
+                        The result, however, prints all the previous information
+                        in the buffer as well as the new info.
+                        
+                        Please rewrite that code to print only the new information.
+                        """));
     }
 
     @Test
