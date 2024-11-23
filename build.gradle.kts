@@ -26,19 +26,6 @@ repositories {
     maven("https://clojars.org/repo/")
 }
 
-configurations.all {
-    resolutionStrategy {
-        // Force usage of a specific slf4j-api version
-        force("org.slf4j:slf4j-api:2.0.12")
-    }
-    // Exclude all other SLF4J providers
-    exclude(group = "org.slf4j", module = "slf4j-simple")
-    exclude(group = "org.slf4j", module = "slf4j-nop")
-    exclude(group = "org.slf4j", module = "slf4j-jdk14")
-    exclude(group = "org.slf4j", module = "slf4j-log4j12")
-    exclude(group = "org.slf4j", module = "slf4j-reload4j")
-}
-
 dependencies {
     // JavaFX
     implementation("org.openjfx:javafx-controls:21.0.2")
@@ -50,6 +37,7 @@ dependencies {
     implementation("dev.langchain4j:langchain4j-open-ai:0.35.0")
     implementation("dev.langchain4j:langchain4j-anthropic:0.35.0")
     implementation("dev.langchain4j:langchain4j-mistral-ai:0.35.0")
+    implementation("dev.langchain4j:langchain4j-google-ai-gemini:0.36.2")
     implementation("dev.langchain4j:langchain4j-ollama:0.35.0")
     implementation("dev.langchain4j:langchain4j:0.35.0")
 
@@ -57,10 +45,6 @@ dependencies {
     implementation("org.jsoup:jsoup:1.18.1")
 
     // Audio
-    implementation("com.assemblyai:assemblyai-java:4.0.0")
-    implementation("net.clojars.dulouser:libretranslate-java:1.0.7")
-    implementation("net.andrewcpu:elevenlabs-api:2.7.8")
-
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.12")
     implementation("ch.qos.logback:logback-classic:1.5.3")

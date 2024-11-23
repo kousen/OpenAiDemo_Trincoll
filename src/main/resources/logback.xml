@@ -6,6 +6,17 @@
         </encoder>
     </appender>
 
+    <!-- Set logging levels for LangChain4j and related packages -->
+    <logger name="dev.langchain4j" level="DEBUG"/>
+    <logger name="dev.langchain4j.model.openai" level="DEBUG"/>
+    <logger name="dev.langchain4j.store.embedding" level="DEBUG"/>
+    <logger name="dev.langchain4j.data.document" level="DEBUG"/>
+    <logger name="dev.langchain4j.data.segment" level="DEBUG"/>
+    <logger name="dev.langchain4j.model.embedding" level="DEBUG"/>
+
+    <!-- If you're using OpenAI, include this logger -->
+    <logger name="dev.ai4j.openai4j" level="DEBUG"/>
+
     <!-- Application logging -->
     <logger name="edu.trincoll" level="DEBUG"/>
 
