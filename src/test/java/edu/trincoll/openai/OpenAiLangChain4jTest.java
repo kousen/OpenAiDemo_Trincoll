@@ -28,7 +28,7 @@ public class OpenAiLangChain4jTest {
     void o1mini() {
         ChatLanguageModel o1mini = OpenAiChatModel.builder()
                 .apiKey(apiKey)
-                .modelName("o1-mini")
+                .modelName("o1-preview")
                 .temperature(1.0) // temperature = 1 for o1 required
                 .build();
         System.out.println(
