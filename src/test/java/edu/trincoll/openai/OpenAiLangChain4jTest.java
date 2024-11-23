@@ -66,7 +66,7 @@ public class OpenAiLangChain4jTest {
 
     @Test
     void visionChat() {
-        String imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg";
+        String imageUrl = "https://upload.wikimedia.org/wikipedia/commons/0/0f/023_Glossy_ibis_fishing_in_the_Camargue_Photo_by_Giles_Laurent.jpg";
         Response<AiMessage> response = chatModel.generate(
                 UserMessage.from(
                         ImageContent.from(imageUrl),
