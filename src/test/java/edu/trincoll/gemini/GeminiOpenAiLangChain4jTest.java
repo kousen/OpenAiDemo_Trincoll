@@ -15,8 +15,8 @@ public class GeminiOpenAiLangChain4jTest {
             .apiKey(System.getenv("GOOGLEAI_API_KEY"))
             .baseUrl("https://generativelanguage.googleapis.com/v1beta/openai/")
             .modelName("gemini-1.5-flash")
-            .logResponses(true)
-            .logRequests(true)
+//            .logResponses(true)
+//            .logRequests(true)
             .build();
 
     @Test
