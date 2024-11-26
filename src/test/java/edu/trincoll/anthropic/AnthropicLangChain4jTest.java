@@ -50,7 +50,7 @@ public class AnthropicLangChain4jTest {
     @Test @Disabled("Doesn't work for Claude models")
     void chatWithMessages() {
         ChatResponse response = chatModel.chat(ChatRequest.builder()
-                .messages(List.of(new UserMessage("""
+                .messages(List.of(UserMessage.from("""
                     What is the Ultimate Answer to
                     the Ultimate Question of
                     Life, the Universe, and Everything?""")))
