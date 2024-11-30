@@ -26,6 +26,8 @@ repositories {
     maven("https://clojars.org/repo/")
 }
 
+val langchain4j = "0.36.2"
+
 dependencies {
     // JavaFX
     implementation("org.openjfx:javafx-controls:21.0.2")
@@ -34,17 +36,17 @@ dependencies {
     implementation("com.google.code.gson:gson:2.11.0")
 
     // Langchain4j
-    implementation("dev.langchain4j:langchain4j-open-ai:0.36.2")
-    implementation("dev.langchain4j:langchain4j-anthropic:0.36.2")
-    implementation("dev.langchain4j:langchain4j-mistral-ai:0.36.2")
-    implementation("dev.langchain4j:langchain4j-google-ai-gemini:0.36.2")
-    implementation("dev.langchain4j:langchain4j-ollama:0.36.2")
-    implementation("dev.langchain4j:langchain4j:0.36.2")
+    implementation("dev.langchain4j:langchain4j-open-ai:$langchain4j")
+    implementation("dev.langchain4j:langchain4j-anthropic:$langchain4j")
+    implementation("dev.langchain4j:langchain4j-mistral-ai:$langchain4j")
+    implementation("dev.langchain4j:langchain4j-google-ai-gemini:$langchain4j")
+    implementation("dev.langchain4j:langchain4j-ollama:$langchain4j")
+    implementation("dev.langchain4j:langchain4j:$langchain4j")
+    implementation("dev.langchain4j:langchain4j-easy-rag:$langchain4j")
 
     // Jsoup
     implementation("org.jsoup:jsoup:1.18.1")
 
-    // Audio
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.12")
     implementation("ch.qos.logback:logback-classic:1.5.3")

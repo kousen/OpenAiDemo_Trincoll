@@ -19,10 +19,10 @@ public class OpenAiLangChain4jTest {
     private final String apiKey = System.getenv("OPENAI_API_KEY");
 
     private final ChatLanguageModel chatModel = OpenAiChatModel.builder()
-                .apiKey(apiKey)
-                .modelName(OpenAiChatModelName.GPT_4_O_MINI)
-                //.modelName("o1-preview")
-                .build();
+            .apiKey(apiKey)
+            .modelName(OpenAiChatModelName.GPT_4_O_MINI)
+            //.modelName("o1-preview")
+            .build();
 
     @Test
     void o1mini() {
@@ -47,9 +47,9 @@ public class OpenAiLangChain4jTest {
     void chatWithMessages() {
         ChatResponse response = chatModel.chat(ChatRequest.builder()
                 .messages(List.of(new UserMessage("""
-                    What is the Ultimate Answer to
-                    the Ultimate Question of
-                    Life, the Universe, and Everything?""")))
+                        What is the Ultimate Answer to
+                        the Ultimate Question of
+                        Life, the Universe, and Everything?""")))
                 .build());
         System.out.println(response.aiMessage().text());
         System.out.println(response.tokenUsage());
@@ -79,7 +79,7 @@ public class OpenAiLangChain4jTest {
     @Test
     void promptStuffing() throws Exception {
         String wikiText = Jsoup.connect(
-                "https://en.wikipedia.org/wiki/Drake%E2%80%93Kendrick_Lamar_feud")
+                        "https://en.wikipedia.org/wiki/Drake%E2%80%93Kendrick_Lamar_feud")
                 .get()
                 .text();
         System.out.println("Length of wikipedia article " + wikiText.length());
@@ -94,12 +94,12 @@ public class OpenAiLangChain4jTest {
 //        }
 
         String response = chatModel.generate(
-                UserMessage.from(
-                        TextContent.from("""
-                            Given the information in %s,
-                            What was the beef about between
-                            Drake and Kendrick Lamar?
-                            """.formatted(wikiText))))
+                        UserMessage.from(
+                                TextContent.from("""
+                                        Given the information in %s,
+                                        What was the beef about between
+                                        Drake and Kendrick Lamar?
+                                        """.formatted(wikiText))))
                 .content().text();
         System.out.println(response);
     }
@@ -107,11 +107,11 @@ public class OpenAiLangChain4jTest {
     @Test
     void feud_without_prompt_stuffing() {
         String response = chatModel.generate(
-                UserMessage.from(
-                        TextContent.from("""
-                            What was the beef about between
-                            Drake and Kendrick Lamar?
-                            """)))
+                        UserMessage.from(
+                                TextContent.from("""
+                                        What was the beef about between
+                                        Drake and Kendrick Lamar?
+                                        """)))
                 .content().text();
         System.out.println(response);
     }
