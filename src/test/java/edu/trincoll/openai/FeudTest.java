@@ -20,11 +20,14 @@ import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 
 import java.util.List;
 
 @DisplayNameGeneration(DisplayNameGenerator.ReplaceUnderscores.class)
 @EnabledIfEnvironmentVariable(named = "OPENAI_API_KEY", matches = ".*")
+@Execution(ExecutionMode.CONCURRENT)
 public class FeudTest {
 
     public static final String WIKIPEDIA_FEUD_ARTICLE =
