@@ -21,7 +21,7 @@ import java.util.Base64;
 public class GeminiLangChain4jTest {
     private final ChatLanguageModel geminiFlashModel = GoogleAiGeminiChatModel.builder()
             .apiKey(System.getenv("GOOGLEAI_API_KEY"))
-            .modelName("gemini-1.5-flash")
+            .modelName("gemini-exp-1121")
             .build();
 
     @Test
