@@ -5,9 +5,12 @@ import dev.langchain4j.data.document.loader.UrlDocumentLoader;
 import dev.langchain4j.data.document.parser.TextDocumentParser;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
+import dev.langchain4j.model.anthropic.AnthropicChatModel;
+import dev.langchain4j.model.anthropic.AnthropicChatModelName;
 import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.model.openai.OpenAiChatModelName;
+import dev.langchain4j.model.openai.OpenAiTokenizer;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.SystemMessage;
@@ -33,10 +36,19 @@ public class FeudTest {
     public static final String WIKIPEDIA_FEUD_ARTICLE =
             "https://en.wikipedia.org/wiki/Drake%E2%80%93Kendrick_Lamar_feud";
 
-    private final ChatLanguageModel chatModel = OpenAiChatModel.builder()
+    private final ChatLanguageModel gpt4o = OpenAiChatModel.builder()
             .apiKey(System.getenv("OPENAI_API_KEY"))
             .modelName(OpenAiChatModelName.GPT_4_O_MINI)
             .build();
+
+    private final ChatLanguageModel claude = AnthropicChatModel.builder()
+            .apiKey(System.getenv("ANTHROPIC_API_KEY"))
+            .modelName(AnthropicChatModelName.CLAUDE_3_5_HAIKU_20241022)
+            .build();
+
+    // Use the OpenAI tokenizer
+    private final OpenAiTokenizer tokenizer =
+            new OpenAiTokenizer(OpenAiChatModelName.GPT_4_O_MINI);
 
     private final List<String> prompts = List.of(
             "Who started the beef about between Drake and Kendrick Lamar?",
@@ -57,7 +69,7 @@ public class FeudTest {
 
         // Create the assistant with memory
         Assistant assistant = AiServices.builder(Assistant.class)
-                .chatLanguageModel(chatModel)
+                .chatLanguageModel(gpt4o)
                 .chatMemory(MessageWindowChatMemory.withMaxMessages(10))
                 .build();
 
@@ -69,21 +81,51 @@ public class FeudTest {
     }
 
     @Test
-    void prompt_stuffing_url_document_loader() {
+    void prompt_stuffing_url_document_loader_gpt4o() {
         interface Assistant {
             String answer(@UserMessage String prompt);
         }
 
         Document feudDoc = UrlDocumentLoader.load(WIKIPEDIA_FEUD_ARTICLE, new TextDocumentParser());
+        int tokens = tokenizer.estimateTokenCountInText(feudDoc.text());
+        System.out.println("Document size is about " + tokens + " tokens");
 
         // GPT-4o has a 128KB limit in the context window
-        if (feudDoc.text().length() > 128 * 1024) {
-            System.out.println("Document too large: " + feudDoc.text().length());
+        if (tokens > 128 * 1024) {
+            System.out.println("Document too large");
             return;
         }
 
         Assistant assistant = AiServices.builder(Assistant.class)
-                .chatLanguageModel(chatModel)
+                .chatLanguageModel(gpt4o)
+                .chatMemory(MessageWindowChatMemory.withMaxMessages(10))
+                .build();
+
+        prompts.forEach(prompt -> {
+            System.out.println("## " + prompt);
+            String response = assistant.answer(prompt);
+            System.out.println(response + "\n");
+        });
+    }
+
+    @Test
+    void prompt_stuffing_url_document_loader_claude() {
+        interface Assistant {
+            String answer(@UserMessage String prompt);
+        }
+
+        Document feudDoc = UrlDocumentLoader.load(WIKIPEDIA_FEUD_ARTICLE, new TextDocumentParser());
+        int tokens = tokenizer.estimateTokenCountInText(feudDoc.text());
+        System.out.println("Document size is about " + tokens + " tokens");
+
+        // GPT-4o has a 128KB limit in the context window
+        if (tokens > 200 * 1024) {
+            System.out.println("Document too large");
+            return;
+        }
+
+        Assistant assistant = AiServices.builder(Assistant.class)
+                .chatLanguageModel(claude)
                 .chatMemory(MessageWindowChatMemory.withMaxMessages(10))
                 .build();
 
@@ -103,17 +145,18 @@ public class FeudTest {
         }
 
         String wikiText = Jsoup.connect(WIKIPEDIA_FEUD_ARTICLE).get().text();
-        System.out.println("Length of wikipedia article " + wikiText.length());
+        int tokens = tokenizer.estimateTokenCountInText(wikiText);
+        System.out.println("Document size is about " + tokens + " tokens");
 
         // This should fit in the 128KB limit
-        if (wikiText.length() > 128 * 1024) {
-            System.out.println("Document too large: " + wikiText.length());
+        if (tokens > 128 * 1024) {
+            System.out.println("Document too large");
             return;
         }
 
         // Create the assistant with memory
         Assistant assistant = AiServices.builder(Assistant.class)
-                .chatLanguageModel(chatModel)
+                .chatLanguageModel(gpt4o)
                 .chatMemory(MessageWindowChatMemory.withMaxMessages(10))
                 .build();
 
@@ -138,7 +181,7 @@ public class FeudTest {
 
         // Create the assistant with memory and content retriever
         Assistant assistant = AiServices.builder(Assistant.class)
-                .chatLanguageModel(chatModel)
+                .chatLanguageModel(gpt4o)
                 .chatMemory(MessageWindowChatMemory.withMaxMessages(10))
                 .contentRetriever(EmbeddingStoreContentRetriever.from(embeddingStore))
                 .build();
