@@ -35,6 +35,9 @@ dependencies {
     // Gson parser
     implementation("com.google.code.gson:gson:2.11.0")
 
+    // New OpenAI Java API (alpha)
+    implementation("com.openai:openai-java:0.8.0")
+
     // Langchain4j
     implementation("dev.langchain4j:langchain4j-open-ai:$langchain4j")
     implementation("dev.langchain4j:langchain4j-anthropic:$langchain4j")
